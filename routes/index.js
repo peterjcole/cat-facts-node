@@ -1,10 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const dbHelpers = require('../dbHelpers')
+const factPersister = require('../db/factPersister')
 
-/* GET home page. */
-router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Meow' });
+/* GET users listing. */
+router.get('/', async function(req, res, next) {
+    let facts = await factPersister.getFacts()
+    res.render('facts', { facts: facts })
 });
 
 module.exports = router;
+
+

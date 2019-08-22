@@ -1,13 +1,20 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../../dbConnection');
-const dbHelpers = require('../../dbHelpers')
-let collection = db.collection('facts')
-/* GET users listing. */
-router.get('/', function(req, res, next) {
-  res.send(dbHelpers.getFacts())
+const factPersister = require('../../db/factPersister')
+
+router.get('/', async function(req, res, next) {
+  res.send(await factPersister.getFacts())
 });
 
-module.exports = router;
+router.post('/', async function(req, res, next) {
+  console.log(req.params)
+  const fact = {
+    name: req.query.name,
+    fact: req.query.fact,
+    approved: false
+  }
+  res.send(await factPersister.postFact(fact))
+})
 
-
+module.exports = router
