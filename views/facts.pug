@@ -1,0 +1,7 @@
+extends layout
+
+block content
+  h1 facts
+  ul 
+    each fact in facts
+      li #[em #{fact.name}] - #{fact.fact}
