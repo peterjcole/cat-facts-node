@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../../dbConnection');
+const db = require('../../db/dbConnection');
 const factPersister = require('../../db/factPersister')
 
 router.get('/', async function(req, res, next) {
