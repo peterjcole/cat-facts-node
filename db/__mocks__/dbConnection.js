@@ -1,4 +1,13 @@
-const testFact = {name: "pusheen", fact: "meow!"}
+const testFact = {
+  data: () => {
+    return {
+      name: "pusheen", 
+      fact: "meow!", 
+      approved: true
+    }
+  },
+  id: 123
+}
 
 const db = {
   collection: function() {
@@ -13,8 +22,8 @@ const mockCollection = {
 }
 
 const mockSnapshot = {
-  empty: function() {
-    return false
+  where: function() {
+    return mockSnapshot
   },
   get: function()  {
     return mockSnapshot
@@ -25,11 +34,8 @@ const mockSnapshot = {
   limit: function() {
     return mockSnapshot
   },
+  empty: false,
   docs: [testFact]
-}
-
-const mockDocs = {
-
 }
 
 const admin = {firestore: () => {return db}}

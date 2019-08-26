@@ -1,6 +1,6 @@
 
 const admin = require('./dbConnection');
-const Fact = require('../model/fact')
+const Fact = require('../model/Fact')
 
 const factsCollection = admin.firestore().collection('facts')
 
@@ -11,18 +11,23 @@ factPersister.getFacts = async () => {
   let facts = []
   await factsCollection.where('approved', '==', true).get().then(snapshot => {
     snapshot.docs.forEach(fact => {
-      const currentFact = buildFact(fact.data())
+      const currentFact = buildFact(fact.data(), fact.id)
       if (currentFact != null) facts.push(currentFact)
     })
   })
   return facts
 }
 
-factPersister.postFact = async fact => {
-  const newFact = buildFact(fact)
-  newFact.approved = false
-  await factsCollection.add(fact)
-  return fact
+factPersister.postFact = async query => {
+  const fact = {
+    name: query.name,
+    fact: query.fact,
+    approved: false
+  }
+  addedRef = await factsCollection.add(fact)
+  addedFact = await addedRef.get()
+
+  return buildFact(addedFact.data(), addedFact.id)
 }
 
 factPersister.getToday = async () => {
@@ -35,7 +40,8 @@ factPersister.getToday = async () => {
 
   const snapshot = await factsCollection.where('approved', '==', true).where('date', '>=', lastMidnightTimestamp).where('date', '<=', nextMidnightTimestamp).get()
   if (!snapshot.empty) {
-    const fact = buildFact(snapshot.docs[0].data())
+    const doc = snapshot.docs[0]
+    const fact = buildFact(doc.data(), doc.id)
     if (fact != null) return {fact}
   } 
   return {}
@@ -43,13 +49,17 @@ factPersister.getToday = async () => {
 
 factPersister.getRandomFact = async () => {
   const querySnapshot = await factsCollection.where('approved', '==', true).where('__name__', '>=', generateAutoId()).orderBy('__name__').limit(1).get()
+  console.log(querySnapshot)
   if (!querySnapshot.empty) {
-    const fact = buildFact(querySnapshot.docs[0].data())
+    const doc = querySnapshot.docs[0]
+    console.log(doc)
+    const fact = buildFact(doc.data(), doc.id)
     if (fact != null) return fact
   }
   const secondSnapshot = await factsCollection.where('approved', '==', true).where('__name__', '>=', " ").orderBy('__name__').limit(1).get()
   if (!secondSnapshot.empty) {
-    const secondFact = buildFact(secondSnapshot.docs[0].data())
+    const doc = secondSnapshot.docs[0]
+    const secondFact = buildFact(doc.data(), doc.id)
     if (secondFact != null) return secondFact
   }
   return {}
@@ -65,12 +75,13 @@ const generateAutoId = () => {
   return autoId
 }
 
-const buildFact = data => {
+const buildFact = (data, id) => {
   let date = null
-  if (typeof data.date.toDate == 'function') {
+  if (typeof data.date != 'undefined' && typeof data.date.toDate == 'function') {
     date = data.date.toDate()
   }
-  return new Fact(data.name, data.fact, date)
+  return new Fact(data.name, data.fact, date, id)
 }
+
 
 module.exports = factPersister
