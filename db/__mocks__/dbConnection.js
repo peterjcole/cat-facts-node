@@ -32,4 +32,6 @@ const mockDocs = {
 
 }
 
-module.exports = db
+const admin = {firestore: () => {return db}}
+
+module.exports = admin

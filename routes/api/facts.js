@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../../db/dbConnection');
 const factPersister = require('../../db/factPersister')
 
 router.get('/', async function(req, res, next) {
@@ -16,5 +15,13 @@ router.post('/', async function(req, res, next) {
   }
   res.send(await factPersister.postFact(fact))
 })
+
+router.get('/random', async function(req, res, next) {
+  res.send(await factPersister.getRandomFact())
+})
+
+router.get('/today', async function(req, res, next) {
+  res.send(await factPersister.getToday())
+}) 
 
 module.exports = router
